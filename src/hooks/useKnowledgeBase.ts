@@ -153,27 +153,3 @@ export const queryKnowledgeBase = async (
     throw new Error("Failed to fetch data from the knowledge base.");
   }
 };
-
-export const queryKnowledgeBaseAxios = async (
-  knowledge_base_id: string,
-  query: string,
-  max_results: number = 5
-): Promise<IQueryResponse> => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/query`, {
-      knowledge_base_id: parseInt(knowledge_base_id, 10),
-      query,
-      max_results,
-    });
-
-    if (response.status !== 200)
-      throw new Error("Failed to fetch data from the knowledge base.");
-
-    const data: IQueryResponse = await response.data;
-    console.log("Query response:", data);
-    return data;
-  } catch (error) {
-    console.error("Error while querying the knowledge base:", error);
-    throw new Error("Failed to fetch data from the knowledge base.");
-  }
-};

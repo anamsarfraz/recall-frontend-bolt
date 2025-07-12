@@ -400,19 +400,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
                 <div className="rounded-lg bg-muted px-3 py-2 min-w-[120px]">
                   {streamingResponse ? (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-muted-foreground">{streamingResponse}</span>
-                      <div className="flex space-x-1">
-                        <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
-                        <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
-                        <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground"></div>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">{streamingResponse}</p>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-xs text-muted-foreground/70">Streaming...</span>
+                        <div className="flex space-x-1">
+                          <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
+                          <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
+                          <div className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground"></div>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex space-x-1">
-                      <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
-                      <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
-                      <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-muted-foreground">Thinking...</span>
+                      <div className="flex space-x-1">
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+                      </div>
                     </div>
                   )}
                 </div>

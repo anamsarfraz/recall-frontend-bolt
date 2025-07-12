@@ -18,8 +18,6 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
 
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
-    setStreamingResponse("");
-    setCurrentStreamingMessage(null);
 
     try {
       // Create initial streaming message
@@ -32,12 +30,24 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
       
       setMessages((prev) => [...prev, loadingMessage]);
       setCurrentStreamingMessage(loadingMessage);
+      setStreamingResponse("");
 
       let finalResponse: any = null;
+      let isFirstChunk = true;
       
       // Handle streaming updates
       const handleStreamUpdate = (chunk: any) => {
         finalResponse = chunk;
+        
+        // Update video immediately on first chunk
+        if (isFirstChunk && onVideoUpdate && chunk.video_path && chunk.start_time !== undefined) {
+          console.log("First chunk received, updating video immediately:", chunk.video_path, chunk.start_time);
+          onVideoUpdate(chunk.video_path, chunk.start_time);
+          isFirstChunk = false;
+        }
+        
+        // Update streaming response for display
+        setStreamingResponse(chunk.response || "");
         
         // Update the streaming message content
         const updatedMessage: ChatMessage = {
@@ -57,11 +67,6 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
             msg.id === loadingMessage.id ? updatedMessage : msg
           )
         );
-        
-        // Proactively update video if callback provided
-        if (onVideoUpdate && chunk.video_path && chunk.start_time !== undefined) {
-          onVideoUpdate(chunk.video_path, chunk.start_time);
-        }
       };
 
       // Start the streaming API call

@@ -14,7 +14,7 @@ export const useKnowledgeBases = (filters?: SearchFilters) => {
   return useQuery({
     queryKey: ["knowledgeBases", filters],
     queryFn: async () => {
-      const url = new URL(`https://api.videoindex.app/knowledge-bases`);
+      const url = new URL(`${API_BASE_URL}/knowledge-bases`);
 
       // Add query parameters
       if (filters) {
@@ -24,11 +24,27 @@ export const useKnowledgeBases = (filters?: SearchFilters) => {
         }
       }
 
-      const response = await fetch(url.toString());
-      if (!response.ok) throw new Error("Network response was not ok");
+      console.log('Fetching knowledge bases from:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to fetch knowledge bases:', response.status, response.statusText);
+        throw new Error(`Failed to fetch knowledge bases: ${response.status} ${response.statusText}`);
+      }
 
-      return response.json() as Promise<KnowledgeBase[]>;
+      const data = await response.json();
+      console.log('Knowledge bases response:', data);
+      return data as KnowledgeBase[];
     },
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 

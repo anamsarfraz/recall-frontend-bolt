@@ -15,6 +15,8 @@ const KnowledgeBaseCard: React.FC<KnowledgeBaseCardProps> = ({
 }: KnowledgeBaseCardProps) => {
   const navigate = useNavigate();
 
+  // Debug logging
+  console.log('Rendering KnowledgeBaseCard:', knowledgeBase);
   const handleCardClick = () => {
     navigate(`/kb/${knowledgeBase.id}`);
   };

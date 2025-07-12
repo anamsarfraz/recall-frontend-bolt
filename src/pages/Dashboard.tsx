@@ -21,11 +21,26 @@ const Dashboard: React.FC = () => {
     setFilters(prev => ({ ...prev, query }));
   };
 
+  // Debug logging
+  console.log('Dashboard state:', { 
+    knowledgeBases, 
+    isLoading, 
+    error: error?.message,
+    filtersApplied: filters 
+  });
   if (error) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold text-foreground mb-4">Something went wrong</h2>
-        <p className="text-muted-foreground">Please try again later.</p>
+        <p className="text-muted-foreground mb-4">
+          {error instanceof Error ? error.message : 'Please try again later.'}
+        </p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+        >
+          Retry
+        </button>
       </div>
     );
   }

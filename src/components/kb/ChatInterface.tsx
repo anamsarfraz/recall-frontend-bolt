@@ -7,7 +7,6 @@ import FeedbackModal from "./FeedbackModal";
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   isLoading: boolean;
-  streamingResponse?: string;
   onTimestampClick?: (timestamp: number, videoPath?: string) => void;
   onFeedback?: (
     messageId: string,
@@ -20,7 +19,6 @@ interface ChatInterfaceProps {
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messages,
   isLoading,
-  streamingResponse,
   onTimestampClick,
   onFeedback,
   isVoiceInput,
@@ -187,7 +185,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingResponse]);
+  }, [messages]);
 
   const formatTime = (timestamp: number): string => {
     const totalSeconds = Math.floor(timestamp);

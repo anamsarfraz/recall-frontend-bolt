@@ -7,6 +7,7 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingResponse, setStreamingResponse] = useState<string>("");
+  const [currentStreamingMessage, setCurrentStreamingMessage] = useState<ChatMessage | null>(null);
 
   const sendMessage = useCallback(async (content: string) => {
     const userMessage: ChatMessage = {
@@ -18,12 +19,10 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     setStreamingResponse("");
+    setCurrentStreamingMessage(null);
 
     try {
-      // Start the API call
-      const responsePromise = queryKnowledgeBase(videoId!, content);
-      
-      // Immediately show loading state with streaming effect
+      // Create initial streaming message
       const loadingMessage: ChatMessage = {
         id: `loading-${Date.now()}`,
         type: "assistant",
@@ -32,59 +31,75 @@ export const useChat = (videoId?: string, onVideoUpdate?: (videoPath: string, ti
       };
       
       setMessages((prev) => [...prev, loadingMessage]);
+      setCurrentStreamingMessage(loadingMessage);
 
-      // Simulate streaming response for better UX
-      const streamingTexts = [
-        "Analyzing your question...",
-        "Searching through video content...",
-        "Finding relevant moments...",
-        "Preparing response..."
-      ];
-
-      let streamIndex = 0;
-      const streamInterval = setInterval(() => {
-        if (streamIndex < streamingTexts.length) {
-          setStreamingResponse(streamingTexts[streamIndex]);
-          streamIndex++;
-        }
-      }, 300);
-
-      // Wait for actual API response
-      const response = await responsePromise;
+      let finalResponse: any = null;
       
-      // Clear streaming simulation
-      clearInterval(streamInterval);
-      setStreamingResponse("");
+      // Handle streaming updates
+      const handleStreamUpdate = (chunk: any) => {
+        finalResponse = chunk;
+        
+        // Update the streaming message content
+        const updatedMessage: ChatMessage = {
+          ...loadingMessage,
+          content: chunk.response,
+          videoTimestamp: chunk.start_time,
+          videoPath: chunk.video_path,
+          originalQuery: content,
+          knowledgeBaseId: videoId,
+        };
+        
+        setCurrentStreamingMessage(updatedMessage);
+        
+        // Update the message in the messages array
+        setMessages((prev) => 
+          prev.map(msg => 
+            msg.id === loadingMessage.id ? updatedMessage : msg
+          )
+        );
+        
+        // Proactively update video if callback provided
+        if (onVideoUpdate && chunk.video_path && chunk.start_time !== undefined) {
+          onVideoUpdate(chunk.video_path, chunk.start_time);
+        }
+      };
 
-      // Immediately update video if callback provided (proactive loading)
-      if (onVideoUpdate && response.video_path && response.start_time !== undefined) {
-        onVideoUpdate(response.video_path, response.start_time);
+      // Start the streaming API call
+      await queryKnowledgeBase(videoId!, content, 5, handleStreamUpdate);
+      
+      setStreamingResponse("");
+      setCurrentStreamingMessage(null);
+      
+      // Ensure we have a final response
+      if (!finalResponse) {
+        throw new Error("No response received from streaming API");
       }
 
-      const assistantMessage: ChatMessage = {
+      // Create final message with complete response
+      const finalMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         type: "assistant",
-        content: response.response,
+        content: finalResponse.response,
         timestamp: new Date().toISOString(),
-        videoTimestamp: response.start_time,
-        videoPath: response.video_path,
-        // Store original query and knowledge base ID for feedback
+        videoTimestamp: finalResponse.start_time,
+        videoPath: finalResponse.video_path,
         originalQuery: content,
         knowledgeBaseId: videoId,
       };
 
-      // Replace loading message with actual response
+      // Replace streaming message with final message
       setMessages((prev) => 
         prev.map(msg => 
-          msg.id === loadingMessage.id ? assistantMessage : msg
+          msg.id === loadingMessage.id ? finalMessage : msg
         )
       );
 
     } catch (error) {
       console.error("Error querying knowledge base:", error);
       
-      // Clear any streaming state
+      // Clear streaming state
       setStreamingResponse("");
+      setCurrentStreamingMessage(null);
       
       // Add error message
       const errorMessage: ChatMessage = {

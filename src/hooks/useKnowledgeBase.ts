@@ -153,6 +153,14 @@ export const queryKnowledgeBase = async (
     throw new Error("Failed to fetch data from the knowledge base.");
   }
 };
+
+export const queryKnowledgeBaseAxios = async (
+  knowledge_base_id: string,
+  query: string,
+  max_results: number = 5
+): Promise<IQueryResponse> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/query`, {
       knowledge_base_id: parseInt(knowledge_base_id, 10),
       query,
       max_results,

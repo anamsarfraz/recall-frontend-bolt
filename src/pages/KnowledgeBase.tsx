@@ -30,6 +30,7 @@ const KnowledgeBase: React.FC = () => {
   const {
     messages,
     isLoading: isChatLoading,
+    streamingResponse,
     sendMessage,
     submitFeedback,
   } = useChat(id, handleProactiveVideoUpdate);
@@ -148,6 +149,7 @@ const KnowledgeBase: React.FC = () => {
             <ChatInterface
               messages={messages}
               isLoading={isChatLoading}
+              streamingResponse={streamingResponse}
               onTimestampClick={handleTimestampClick}
               onFeedback={handleFeedback}
               isVoiceInput={isVoiceInput}

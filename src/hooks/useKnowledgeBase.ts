@@ -72,7 +72,7 @@ export const queryKnowledgeBase = async (
 ): Promise<IQueryResponse> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/query`, {
-      knowledge_base_id,
+      knowledge_base_id: parseInt(knowledge_base_id, 10),
       query,
       max_results,
     });
